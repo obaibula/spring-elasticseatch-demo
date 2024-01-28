@@ -8,7 +8,7 @@ import org.springframework.lang.NonNull;
 
 @Configuration
 @EnableElasticsearchRepositories("com.example.demo.repository")
-public class Config extends ElasticsearchConfiguration {
+public class LocalElasticsearchConfiguration extends ElasticsearchConfiguration {
 
     @NonNull
     @Override
