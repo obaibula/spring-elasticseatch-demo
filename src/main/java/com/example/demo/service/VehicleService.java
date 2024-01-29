@@ -1,11 +1,16 @@
 package com.example.demo.service;
 
 import static com.example.demo.helper.Indices.VEHICLE_INDEX;
+import static java.util.Objects.isNull;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.GetRequest;
+import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.example.demo.document.Vehicle;
+import com.example.demo.search.SearchRequestDto;
+import com.example.demo.util.SearchUtil;
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +23,27 @@ import org.springframework.stereotype.Service;
 public class VehicleService {
 
     private final ElasticsearchClient elasticsearchClient;
+
+    public List<Vehicle> search(SearchRequestDto dto) {
+        var request = SearchUtil.buildSearchRequest(VEHICLE_INDEX, dto);
+
+        if (isNull(request)) {
+            return List.of();
+        }
+
+        try {
+            var response = elasticsearchClient.search(request, Vehicle.class);
+            return response.hits()
+                .hits()
+                .stream()
+                .map(Hit::source)
+                .toList();
+
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            return List.of();
+        }
+    }
 
     public void index(Vehicle vehicle) {
         try {

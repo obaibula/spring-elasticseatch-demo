@@ -34,7 +34,6 @@ public class IndexService {
         } catch (IOException e) {
             log.error(e.getMessage(), e);
         }
-
     }
 
     private void createIndex(String indexName, InputStream settingJson) throws IOException {

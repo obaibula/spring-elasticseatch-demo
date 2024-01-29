@@ -3,7 +3,9 @@ package com.example.demo.controller;
 import static org.springframework.http.HttpStatus.CREATED;
 
 import com.example.demo.document.Vehicle;
+import com.example.demo.search.SearchRequestDto;
 import com.example.demo.service.VehicleService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,6 +32,12 @@ public class VehicleController {
     public ResponseEntity<Vehicle> findById(@PathVariable String id) {
         var vehicle = vehicleService.findById(id);
         return ResponseEntity.ok(vehicle);
+    }
+
+    @PostMapping("/search")
+    public ResponseEntity<List<Vehicle>> search(@RequestBody SearchRequestDto dto) {
+        var vehicles = vehicleService.search(dto);
+        return ResponseEntity.ok(vehicles);
     }
 
 }
