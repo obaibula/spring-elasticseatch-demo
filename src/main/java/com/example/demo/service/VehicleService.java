@@ -5,11 +5,13 @@ import static java.util.Objects.isNull;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.GetRequest;
+import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.example.demo.document.Vehicle;
 import com.example.demo.search.SearchRequestDto;
 import com.example.demo.util.SearchUtil;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -24,9 +26,22 @@ public class VehicleService {
 
     private final ElasticsearchClient elasticsearchClient;
 
-    public List<Vehicle> search(SearchRequestDto dto) {
+    public List<Vehicle> getAll(SearchRequestDto dto) {
         var request = SearchUtil.buildSearchRequest(VEHICLE_INDEX, dto);
 
+        return getVehicles(request);
+    }
+
+    public List<Vehicle> getAllCreatedSince(Date date) {
+        var request = SearchUtil.buildSearchRequest(
+            VEHICLE_INDEX,
+            "created",
+            date);
+
+        return getVehicles(request);
+    }
+
+    private List<Vehicle> getVehicles(SearchRequest request) {
         if (isNull(request)) {
             return List.of();
         }

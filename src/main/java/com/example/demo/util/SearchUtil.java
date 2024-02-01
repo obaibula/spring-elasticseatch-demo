@@ -10,8 +10,9 @@ import static lombok.AccessLevel.PRIVATE;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
-import co.elastic.clients.elasticsearch.core.SearchRequest.Builder;
+import co.elastic.clients.json.JsonData;
 import com.example.demo.search.SearchRequestDto;
+import java.util.Date;
 import java.util.Optional;
 import lombok.NoArgsConstructor;
 
@@ -19,7 +20,7 @@ import lombok.NoArgsConstructor;
 public final class SearchUtil {
 
     public static SearchRequest buildSearchRequest(String indexName, SearchRequestDto dto) {
-        var builder = new Builder()
+        var builder = new SearchRequest.Builder()
             .postFilter(getQuery(dto))
             .index(indexName);
 
@@ -37,6 +38,13 @@ public final class SearchUtil {
         return builder.build();
     }
 
+    public static SearchRequest buildSearchRequest(String indexName, String field, Date date) {
+        return new SearchRequest.Builder()
+            .postFilter(getQuery(field, date))
+            .index(indexName)
+            .build();
+    }
+
     public static Query getQuery(SearchRequestDto dto) {
         if (isNull(dto)) {
             return null;
@@ -47,12 +55,18 @@ public final class SearchUtil {
             return null;
         }
 
-        return QueryBuilders.multiMatch(fn -> fn
+        return QueryBuilders.multiMatch(query -> query
             .fields(fields)
             .query(dto.searchTerm())
             .type(CrossFields)
             .operator(And));
 
+    }
+
+    public static Query getQuery(String field, Date date) {
+        return QueryBuilders.range(query -> query
+                .field(field)
+                .gte(JsonData.of(date)));
     }
 
 }
